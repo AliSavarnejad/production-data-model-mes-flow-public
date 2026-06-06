@@ -1,0 +1,17 @@
+# SQLite database files created locally
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+
+# SQLite temporary files
+*.db-journal
+*.sqlite-journal
+*.sqlite3-journal
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
