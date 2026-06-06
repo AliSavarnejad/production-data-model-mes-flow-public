@@ -6,7 +6,7 @@ This project demonstrates a simplified IT/OT data architecture for collecting se
 
 It shows how automation-side signals such as machine states, alarms, cycle counters, production order context, and energy readings can be transformed into relational database records for MES-style reporting, troubleshooting, and later IT/OT analytics.
 
-The project is implemented with SQLite and includes schema design, sample data, validation queries, constraint tests, screenshots, and documentation.
+The project is implemented with SQLite and includes schema design, sample data, validation queries, constraint tests, screenshots, documentation, and a small Python ingest demo.
 
 ---
 
@@ -14,15 +14,15 @@ The project is implemented with SQLite and includes schema design, sample data, 
 
 ```text
 PLC / Machine
-     ↓
+    ↓
 OPC UA Server or Source Tags
-     ↓
+    ↓
 IT/OT Data Collector or Edge Gateway
-     ↓
+    ↓
 Mapping and Normalization Logic
-     ↓
+    ↓
 SQLite Production Database
-     ↓
+    ↓
 MES-style Reporting / Troubleshooting / Analytics
 ```
 
@@ -43,6 +43,7 @@ The project focuses on:
 - OPC UA-style signal-to-database mapping
 - validation queries and constraint tests
 - documentation for database relationships and IT/OT data flow
+- a small runnable Python ingest demo
 
 ---
 
@@ -82,7 +83,7 @@ This scenario shows how several database tables can work together to support tro
 
 ```text
 production-data-model-mes-flow-public/
-│
+
 ├── README.md
 ├── .gitignore
 │
@@ -91,6 +92,9 @@ production-data-model-mes-flow-public/
 │   ├── sample_data.sql
 │   ├── validation_queries.sql
 │   └── constraint_tests.sql
+│
+├── scripts/
+│   └── simulate_ingest.py
 │
 ├── docs/
 │   ├── architecture_overview.md
@@ -109,7 +113,8 @@ production-data-model-mes-flow-public/
 │   ├── invalid_machine_active_status.png
 │   ├── invalid_production_order_quantity.png
 │   ├── invalid_cycle_time_order.png
-│   └── invalid_energy_value.png
+│   ├── invalid_energy_value.png
+│   └── python_ingest_demo.png
 │
 └── data/
     └── .gitkeep
@@ -165,6 +170,81 @@ After running the schema and sample data, the validation query should return:
 | `alarm_events` | 3 |
 | `energy_readings` | 4 |
 
+After running the Python ingest demo, the local `machine_events` count increases by one because the script inserts one additional simulated event.
+
+---
+
+### 4. Python Ingest Demo
+
+This project includes a small Python script that simulates one OPC UA-style machine event and inserts it into the local SQLite database.
+
+The script demonstrates:
+
+- opening the SQLite database
+- resolving machine and production order references
+- inserting one machine event into the `machine_events` table
+- preventing duplicate demo inserts when the script is executed more than once
+
+The script does not connect to a real PLC or OPC UA server. It demonstrates the basic ingest logic using simulated machine data.
+
+---
+
+### 5. Run the Python Script
+
+Before running the script, create the local SQLite database and execute:
+
+```text
+sql/schema.sql
+sql/sample_data.sql
+```
+
+Then run:
+
+```text
+python scripts/simulate_ingest.py
+```
+
+Expected first run:
+
+```text
+Simulated ingest completed successfully.
+Inserted one machine event into the SQLite database.
+Machine: M001
+Production order: ORD-2026-001
+Event type: operator_action
+Event value: fault_acknowledged
+```
+
+Expected second run:
+
+```text
+Demo event already exists. No duplicate row was inserted.
+```
+
+The inserted row can be verified in DB Browser for SQLite using this source tag:
+
+```text
+SimulatedIngest.M001.OperatorAction
+```
+
+A screenshot of the executed Python ingest demo is available here:
+
+```text
+screenshots/python_ingest_demo.png
+```
+
+---
+
+### 6. Purpose of the Python Demo
+
+The Python ingest demo is intentionally small.
+
+It is included to show how simulated machine-side data can be inserted into the relational production data model.
+
+In a real industrial environment, this logic could be part of an edge gateway, OPC UA client, SCADA interface, or IT/OT data collector.
+
+For this portfolio project, the script only demonstrates the core ingest concept.
+
 ---
 
 ## Validation Queries
@@ -175,12 +255,12 @@ The project includes validation queries that confirm:
 - sample data was inserted correctly
 - table relationships work through foreign keys
 - machine events can be displayed as a timeline
-- production cycles can be summarized by production order
+- production cycle data can be summarized by production order
 - critical alarms can be filtered
 - energy readings can be analyzed around a fault window
 - alarm context can be connected to machine and production order data
 
-Screenshots of the validation results are stored in the `screenshots/` folder.
+Screenshots of the validation results are stored in the `screenshots` folder.
 
 ---
 
@@ -241,6 +321,8 @@ All timestamps are stored as UTC text values using a consistent format.
 
 This keeps ordering and comparison predictable in a simplified SQLite model.
 
+In a production system, timestamp handling should also define conversion rules between local plant time, UTC storage, and reporting time zones.
+
 ---
 
 ### Constraint-Based Validation
@@ -256,6 +338,23 @@ Examples:
 - `power_kw_avg` must not be negative
 
 These constraints help protect the data model from invalid records.
+
+---
+
+### Duplicate Prevention in the Python Demo
+
+The Python ingest demo checks whether the same simulated event already exists before inserting it.
+
+The duplicate check uses:
+
+- machine reference
+- production order reference
+- event timestamp
+- event type
+- event value
+- source tag
+
+This keeps the demo simple while showing the basic idea of avoiding repeated inserts.
 
 ---
 
@@ -286,6 +385,8 @@ This project demonstrates:
 - alarm and event data modeling
 - OPC UA-style tag mapping
 - validation query design
+- basic Python-to-SQLite ingest logic
+- duplicate insert prevention
 - IT/OT documentation
 - troubleshooting-oriented data analysis
 
@@ -293,9 +394,9 @@ This project demonstrates:
 
 ## Scope
 
-This is a portfolio database modeling project.
+This is a portfolio database modeling project with a small simulated ingest demo.
 
-It demonstrates database structure, relationships, validation logic, sample data, and IT/OT data flow documentation.
+It demonstrates database structure, relationships, validation logic, sample data, Python-based simulated insertion, and IT/OT data flow documentation.
 
 It does not implement:
 
@@ -314,3 +415,5 @@ It does not implement:
 The project shows how selected machine and production data can be structured into a relational database model for MES-style reporting, troubleshooting, and later IT/OT analytics.
 
 It is intentionally simplified, but it demonstrates the core logic needed to connect automation-side signals with structured production data.
+
+The Python ingest demo adds a small executable example that shows how simulated machine-side data can be inserted into the database model.
