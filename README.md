@@ -1,81 +1,37 @@
-# Production Data Model and MES/Database Data Flow
+# Industrial Production Data Analysis Workflow
 
-## Overview
+This project demonstrates a small industrial production-data analysis workflow using SQLite, Python, pandas, and Matplotlib.
 
-This project demonstrates a simplified IT/OT data architecture for collecting selected machine and production data and storing it in a structured SQLite database.
+The goal is to show how production-related data can be loaded from a relational database, validated, analyzed, exported as CSV files, visualized, and summarized with an engineering interpretation.
 
-It shows how automation-side signals such as machine states, alarms, cycle counters, production order context, and energy readings can be transformed into relational database records for MES-style reporting, troubleshooting, and later IT/OT analytics.
-
-The project is implemented with SQLite and includes schema design, sample data, validation queries, constraint tests, screenshots, documentation, and a small Python ingest demo.
+The project is designed as a portfolio example for industrial automation, PLC, and IT/OT data-analysis topics.
 
 ---
 
-## High-Level Data Flow
+## Project Scenario
 
-```text
-PLC / Machine
-    ↓
-OPC UA Server or Source Tags
-    ↓
-IT/OT Data Collector or Edge Gateway
-    ↓
-Mapping and Normalization Logic
-    ↓
-SQLite Production Database
-    ↓
-MES-style Reporting / Troubleshooting / Analytics
-```
+The dataset represents a small synthetic production scenario:
+
+* Two machines are included:
+
+  * `M001` Packaging Machine 1
+  * `M002` Assembly Station 1
+* Two production orders are included.
+* The main example event is alarm `ALM-304`, a critical packaging-line fault.
+* The analysis reviews machine records, production orders, cycle records, alarm events, energy readings, and machine events.
+* The dataset is intentionally small and synthetic.
+* The results are not intended to represent real production performance.
 
 ---
 
-## Project Goal
+## Technologies Used
 
-The goal is to design and validate a database-oriented data model that connects machine data with production context.
-
-The project focuses on:
-
-- machine master data
-- production orders
-- machine event timelines
-- production cycle records
-- structured alarm records
-- interval-based energy readings
-- OPC UA-style signal-to-database mapping
-- validation queries and constraint tests
-- documentation for database relationships and IT/OT data flow
-- a small runnable Python ingest demo
-
----
-
-## Main Database Tables
-
-| Table | Purpose |
-|---|---|
-| `machines` | Stores machine master data |
-| `production_orders` | Stores simplified MES-style production order data |
-| `machine_events` | Stores generic timestamped machine events |
-| `cycle_records` | Stores measured production cycle records |
-| `alarm_events` | Stores structured alarm lifecycle data |
-| `energy_readings` | Stores interval-based machine energy readings |
-
----
-
-## Main Scenario
-
-The sample data describes a simplified production scenario for machine `M001`.
-
-The scenario includes:
-
-- a production order assigned to the machine
-- machine start event
-- normal production cycles
-- a slower cycle shortly before a fault
-- critical alarm `ALM-304`
-- alarm acknowledgement by an operator
-- lower power reading during the fault or idle window
-- machine restart after fault clearance
-
-This scenario shows how several database tables can work together to support troubleshooting and production analysis.
+* Python
+* pandas
+* SQLite
+* Matplotlib
+* Jupyter Notebook
+* SQL
 
 ---
 
@@ -83,337 +39,239 @@ This scenario shows how several database tables can work together to support tro
 
 ```text
 production-data-model-mes-flow-public/
-
-├── README.md
-├── .gitignore
-│
-├── sql/
-│   ├── schema.sql
-│   ├── sample_data.sql
-│   ├── validation_queries.sql
-│   └── constraint_tests.sql
-│
-├── scripts/
-│   └── simulate_ingest.py
-│
+├── data/
+│   └── generated/                 # Local generated database, ignored by Git
 ├── docs/
-│   ├── architecture_overview.md
-│   ├── opcua_to_database_mapping.md
-│   ├── data_dictionary.md
-│   ├── validation_results.md
-│   └── project_summary.md
-│
-├── screenshots/
-│   ├── record_counts.png
-│   ├── machine_event_timeline.png
-│   ├── cycle_summary_by_order.png
-│   ├── critical_alarms.png
-│   ├── energy_around_fault_window.png
-│   ├── alm304_context.png
-│   ├── invalid_machine_active_status.png
-│   ├── invalid_production_order_quantity.png
-│   ├── invalid_cycle_time_order.png
-│   ├── invalid_energy_value.png
-│   └── python_ingest_demo.png
-│
-└── data/
-    └── .gitkeep
+│   └── analysis_summary.md
+├── notebooks/
+│   └── machine_data_analysis.ipynb
+├── outputs/
+│   ├── figures/
+│   │   ├── alarm_count_by_machine.png
+│   │   ├── mean_cycle_time_by_machine.png
+│   │   ├── production_progress_by_order.png
+│   │   └── total_energy_by_machine.png
+│   └── tables/
+│       ├── analysis_metric_summary.csv
+│       ├── export_validation_summary.csv
+│       ├── machine_operational_summary.csv
+│       ├── production_order_summary.csv
+│       └── visualization_export_summary.csv
+├── scripts/
+│   ├── create_demo_database.py
+│   └── simulate_ingest.py
+├── sql/
+│   ├── constraint_tests.sql
+│   ├── sample_data.sql
+│   ├── schema.sql
+│   └── validation_queries.sql
+├── .gitignore
+├── README.md
+└── requirements.txt
 ```
-
-The local SQLite database file is stored in the `data/` folder during execution, but it is intentionally excluded from Git.
 
 ---
 
-## How to Run the Project
+## Data Model
 
-### 1. Create a Local SQLite Database
+The simplified data model contains the following tables:
 
-Create a new SQLite database file locally, for example:
+* `machines`
+* `production_orders`
+* `cycle_records`
+* `alarm_events`
+* `energy_readings`
+* `machine_events`
+
+The tables are connected using:
+
+* `machine_db_id`
+* `order_db_id`
+
+This allows analysis at both machine level and production-order level.
+
+---
+
+## How to Reproduce the Demo Database
+
+Install the required packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+Create the demo SQLite database from the SQL schema and sample data:
+
+```bash
+python scripts/create_demo_database.py
+```
+
+Expected output:
 
 ```text
-data/production_data_model.db
+Demo SQLite database created successfully.
+Database file: data/generated/demo_production.db
 ```
 
-The database file is not included in the repository because it is generated locally.
+The generated `.db` file is ignored by Git and should not be committed.
 
 ---
 
-### 2. Execute the SQL Files
+## How to Run the Analysis
 
-Run the files in this order:
+Open the notebook:
 
 ```text
-1. sql/schema.sql
-2. sql/sample_data.sql
-3. sql/validation_queries.sql
-4. sql/constraint_tests.sql
+notebooks/machine_data_analysis.ipynb
 ```
 
-Recommended tool:
+Then run all cells.
+
+The notebook performs the following workflow:
+
+1. Detects the project root and database path.
+2. Connects to SQLite.
+3. Discovers and loads database tables.
+4. Validates table structure and data quality.
+5. Previews key tables.
+6. Analyzes production-cycle duration.
+7. Analyzes alarm events.
+8. Reviews energy readings around the selected fault window.
+9. Builds a machine-level operational summary.
+10. Builds a production-order-level summary.
+11. Validates exported output files.
+12. Creates basic visualizations.
+13. Generates a final engineering interpretation.
+
+---
+
+## Generated Outputs
+
+The notebook exports reusable CSV files:
 
 ```text
-DB Browser for SQLite
+outputs/tables/
+├── analysis_metric_summary.csv
+├── export_validation_summary.csv
+├── machine_operational_summary.csv
+├── production_order_summary.csv
+└── visualization_export_summary.csv
 ```
 
----
-
-### 3. Expected Record Counts
-
-After running the schema and sample data, the validation query should return:
-
-| Table | Expected record count |
-|---|---:|
-| `machines` | 2 |
-| `production_orders` | 2 |
-| `machine_events` | 4 |
-| `cycle_records` | 4 |
-| `alarm_events` | 3 |
-| `energy_readings` | 4 |
-
-After running the Python ingest demo, the local `machine_events` count increases by one because the script inserts one additional simulated event.
-
----
-
-### 4. Python Ingest Demo
-
-This project includes a small Python script that simulates one OPC UA-style machine event and inserts it into the local SQLite database.
-
-The script demonstrates:
-
-- opening the SQLite database
-- resolving machine and production order references
-- inserting one machine event into the `machine_events` table
-- preventing duplicate demo inserts when the script is executed more than once
-
-The script does not connect to a real PLC or OPC UA server. It demonstrates the basic ingest logic using simulated machine data.
-
----
-
-### 5. Run the Python Script
-
-Before running the script, create the local SQLite database and execute:
+It also exports visualization files:
 
 ```text
-sql/schema.sql
-sql/sample_data.sql
-```
-
-Then run:
-
-```text
-python scripts/simulate_ingest.py
-```
-
-Expected first run:
-
-```text
-Simulated ingest completed successfully.
-Inserted one machine event into the SQLite database.
-Machine: M001
-Production order: ORD-2026-001
-Event type: operator_action
-Event value: fault_acknowledged
-```
-
-Expected second run:
-
-```text
-Demo event already exists. No duplicate row was inserted.
-```
-
-The inserted row can be verified in DB Browser for SQLite using this source tag:
-
-```text
-SimulatedIngest.M001.OperatorAction
-```
-
-A screenshot of the executed Python ingest demo is available here:
-
-```text
-screenshots/python_ingest_demo.png
+outputs/figures/
+├── alarm_count_by_machine.png
+├── mean_cycle_time_by_machine.png
+├── production_progress_by_order.png
+└── total_energy_by_machine.png
 ```
 
 ---
 
-### 6. Purpose of the Python Demo
+## Example Visualizations
 
-The Python ingest demo is intentionally small.
+### Production Progress by Order
 
-It is included to show how simulated machine-side data can be inserted into the relational production data model.
+![Production Progress by Order](outputs/figures/production_progress_by_order.png)
 
-In a real industrial environment, this logic could be part of an edge gateway, OPC UA client, SCADA interface, or IT/OT data collector.
+### Alarm Count by Machine
 
-For this portfolio project, the script only demonstrates the core ingest concept.
+![Alarm Count by Machine](outputs/figures/alarm_count_by_machine.png)
 
----
+### Total Energy by Machine
 
-## Validation Queries
+![Total Energy by Machine](outputs/figures/total_energy_by_machine.png)
 
-The project includes validation queries that confirm:
+### Mean Cycle Time by Machine
 
-- all main tables were created successfully
-- sample data was inserted correctly
-- table relationships work through foreign keys
-- machine events can be displayed as a timeline
-- production cycle data can be summarized by production order
-- critical alarms can be filtered
-- energy readings can be analyzed around a fault window
-- alarm context can be connected to machine and production order data
-
-Screenshots of the validation results are stored in the `screenshots` folder.
+![Mean Cycle Time by Machine](outputs/figures/mean_cycle_time_by_machine.png)
 
 ---
 
-## Constraint Tests
+## Key Results from the Sample Dataset
 
-The project also includes constraint tests that intentionally insert invalid data.
+The final analysis summary reports:
 
-These tests confirm that the database rejects invalid records, such as:
+* Machines analyzed: `2`
+* Active machines: `2`
+* Production orders analyzed: `2`
+* Total planned quantity: `1500`
+* Total produced quantity: `3`
+* Overall production progress: `0.20 %`
+* Mean order-level progress: `0.15 %`
+* Total alarm count: `3`
+* Critical alarm count: `1`
+* Warning alarm count: `2`
+* Total recorded energy: `2.68 kWh`
+* Valid CSV exports: `2 of 2`
+* Valid figure exports: `4 of 4`
 
-- invalid machine active status
-- invalid production order quantity
-- invalid cycle time order
-- invalid negative energy value
-
-A failed insert is the expected result for these tests because the database is protecting the data model from invalid input.
-
----
-
-## Key Design Decisions
-
-### Internal Database Keys
-
-Each main table uses an internal primary key named `id`.
-
-Readable business identifiers such as `machine_id` and `order_number` are stored separately.
-
-This keeps database relationships stable even if readable identifiers or display names change later.
+These values are based on a small generated dataset and are intended to demonstrate the workflow rather than evaluate a real production system.
 
 ---
 
-### Required Machine Context
+## Engineering Interpretation
 
-Operational records require `machine_db_id`.
+The project demonstrates how industrial production data from several related tables can be transformed into reusable operational views.
 
-This means every event, cycle, alarm, or energy reading must belong to a known machine.
+The machine-level summary combines machine master data with cycle counts, produced quantity, alarm counts, energy readings, and machine-event activity.
 
-This prevents orphan records that cannot be connected to machine context.
+The production-order summary combines order data with cycle records, alarm records, energy readings, machine events, and machine master data. This makes it possible to review production progress and operational context at order level.
 
----
-
-### Optional Production Order Context
-
-Some operational records include `order_db_id`, but it is optional.
-
-This is intentional because machine activity can happen outside an active production order, for example:
-
-- setup cycles
-- maintenance events
-- test operation
-- mode changes before production
-- energy readings during idle periods
+The alarm and energy analysis around `ALM-304` shows how event timestamps and energy readings can be compared in the same workflow. The result should be interpreted as temporal correlation only, not as proof of causation.
 
 ---
 
-### UTC Timestamp Policy
+## Validation Checks
 
-All timestamps are stored as UTC text values using a consistent format.
+The notebook includes checks for:
 
-This keeps ordering and comparison predictable in a simplified SQLite model.
+* Expected database tables
+* Loaded table row and column counts
+* Required output variables
+* Exported CSV file existence
+* Exported CSV row counts
+* Required CSV columns
+* Exported figure file existence
+* Exported figure file size
 
-In a production system, timestamp handling should also define conversion rules between local plant time, UTC storage, and reporting time zones.
-
----
-
-### Constraint-Based Validation
-
-The schema uses database constraints to reject basic invalid data.
-
-Examples:
-
-- `is_active` must be `0` or `1`
-- `planned_quantity` must be greater than `0`
-- `cycle_time_ms` must be greater than `0`
-- `cycle_end_utc` must not be earlier than `cycle_start_utc`
-- `power_kw_avg` must not be negative
-
-These constraints help protect the data model from invalid records.
+The project also includes SQL validation files for additional database checks.
 
 ---
 
-### Duplicate Prevention in the Python Demo
+## Limitations
 
-The Python ingest demo checks whether the same simulated event already exists before inserting it.
+This project uses a small synthetic dataset.
 
-The duplicate check uses:
+The results should not be interpreted as real production KPIs or a real OEE calculation.
 
-- machine reference
-- production order reference
-- event timestamp
-- event type
-- event value
-- source tag
+A real industrial analysis would require more historical data, validated machine-state information, downtime classification, shift context, quality results, maintenance records, and verified production counters.
 
-This keeps the demo simple while showing the basic idea of avoiding repeated inserts.
+Alarm duration is not labeled as downtime because alarm records alone do not prove that the machine was stopped.
 
 ---
 
-## Documentation
+## What This Project Demonstrates
 
-Additional documentation is available in the `docs/` folder:
+This project demonstrates practical skills in:
 
-| Document | Purpose |
-|---|---|
-| `architecture_overview.md` | Explains the simplified IT/OT architecture and data flow |
-| `opcua_to_database_mapping.md` | Shows how OPC UA-style source tags map to database tables and columns |
-| `data_dictionary.md` | Describes tables, columns, constraints, and relationships |
-| `validation_results.md` | Summarizes validation queries, expected results, screenshots, and constraint tests |
-| `project_summary.md` | Provides a final project overview and conclusion |
-
----
-
-## Skills Demonstrated
-
-This project demonstrates:
-
-- SQL database schema design
-- relational data modeling
-- foreign key relationships
-- constraint-based validation
-- machine data structuring
-- production order context modeling
-- alarm and event data modeling
-- OPC UA-style tag mapping
-- validation query design
-- basic Python-to-SQLite ingest logic
-- duplicate insert prevention
-- IT/OT documentation
-- troubleshooting-oriented data analysis
+* Relational production-data modeling
+* SQLite database usage
+* SQL schema and sample-data design
+* Python-based data loading
+* pandas data validation and transformation
+* Machine-level and order-level KPI summaries
+* CSV export validation
+* Matplotlib visualization
+* Engineering interpretation of IT/OT production data
+* Reproducible portfolio project structure
 
 ---
 
-## Scope
+## Author
 
-This is a portfolio database modeling project with a small simulated ingest demo.
+Ali Savarnejad
 
-It demonstrates database structure, relationships, validation logic, sample data, Python-based simulated insertion, and IT/OT data flow documentation.
-
-It does not implement:
-
-- live OPC UA communication
-- real PLC connectivity
-- production-scale historian storage
-- real-time data collection
-- dashboard visualization
-- OEE calculation
-- production MES deployment
-
----
-
-## Conclusion
-
-The project shows how selected machine and production data can be structured into a relational database model for MES-style reporting, troubleshooting, and later IT/OT analytics.
-
-It is intentionally simplified, but it demonstrates the core logic needed to connect automation-side signals with structured production data.
-
-The Python ingest demo adds a small executable example that shows how simulated machine-side data can be inserted into the database model.
+Automation / PLC Engineer with focus on IT/OT, industrial data workflows, machine connectivity, and production-data analysis.
