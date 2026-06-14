@@ -1,17 +1,32 @@
-# SQLite database files created locally
-data/*.db
-data/*.sqlite
-data/*.sqlite3
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
 
-# SQLite temporary files
-*.db-journal
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
 *.sqlite-journal
-*.sqlite3-journal
+*-journal
 
-# Operating system files
+# Environment and secrets
+.env
+.env.*
+
+# OS/editor files
 .DS_Store
 Thumbs.db
-
-# Editor folders
 .vscode/
 .idea/
+
+# Optional local exports
+*.log

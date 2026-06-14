@@ -1,0 +1,5 @@
+figure_name,relative_path,file_exists,file_size_bytes,is_valid_figure
+production_progress_by_order.png,outputs\figures\production_progress_by_order.png,True,48254,True
+alarm_count_by_machine.png,outputs\figures\alarm_count_by_machine.png,True,52061,True
+total_energy_by_machine.png,outputs\figures\total_energy_by_machine.png,True,47895,True
+mean_cycle_time_by_machine.png,outputs\figures\mean_cycle_time_by_machine.png,True,41615,True

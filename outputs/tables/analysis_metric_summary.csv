@@ -1,0 +1,16 @@
+metric,value,interpretation
+machines_analyzed,2,Number of machine master records included in the analysis.
+active_machines,2,Number of machines marked as active in the sample dataset.
+production_orders_analyzed,2,Number of production orders included in the summary view.
+total_planned_quantity,1500,Total planned production quantity across all sample orders.
+total_produced_quantity,3,Total produced quantity recorded in the sample cycle data.
+overall_production_progress_percent,0.20,Overall production progress calculated as total produced quantity divided by total planned quantity across all sample orders.
+mean_order_progress_percent,0.15,Average of order-level production progress percentages. This is different from the overall produced/planned ratio.
+total_alarm_count,3,Total number of alarm records summarized across machines.
+critical_alarm_count,1,Number of alarms classified as critical.
+warning_alarm_count,2,Number of alarms classified as warning.
+total_energy_kwh,2.68,Total recorded energy consumption in the sample dataset.
+mean_cycle_time_ms,5333.33,Average machine-level mean cycle time where valid cycle data exists.
+max_cycle_time_ms,6000.00,Maximum machine-level cycle time observed in the summarized sample data.
+valid_csv_exports,2 of 2,Number of exported CSV summary files that passed validation.
+valid_figure_exports,4 of 4,Number of exported PNG figure files that passed validation.

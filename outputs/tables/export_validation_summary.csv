@@ -1,0 +1,3 @@
+output_name,relative_path,file_exists,file_size_bytes,row_count,expected_rows,row_count_matches,column_count,has_required_columns,missing_columns,is_valid_export
+machine_operational_summary,outputs\tables\machine_operational_summary.csv,True,968,2,2,True,29,True,None,True
+production_order_summary,outputs\tables\production_order_summary.csv,True,1325,2,2,True,39,True,None,True
