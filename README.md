@@ -44,6 +44,11 @@ production-data-model-mes-flow/
 │   └── generated/                  # Local generated database, ignored by Git
 ├── docs/
 │   ├── analysis_summary.md
+│   ├── architecture_overview.md
+│   ├── data_dictionary.md
+│   ├── opcua_to_database_mapping.md
+│   ├── project_summary.md
+│   ├── validation_results.md
 │   └── images/
 │       └── industrial-production-data-model.png
 ├── notebooks/
@@ -189,7 +194,13 @@ python scripts/run_example_query.py
 
 Result:
 
-<!-- PASTE THE REAL OUTPUT OF scripts/run_example_query.py HERE -->
+| machine_id | machine_name | alarm_code | alarm_category | severity | alarm_start_utc | alarm_end_utc | alarm_minutes | overlapping_energy_readings | energy_kwh_in_alarm_window | avg_power_kw_in_alarm_window |
+|---|---|---|---|---|---|---|---|---|---|---|
+| M001 | Packaging Machine 1 | ALM-120 | process | warning | 2026-06-01 07:15:00+00:00 | 2026-06-01 07:18:00+00:00 | 3.0 | 0 | NULL | NULL |
+| M001 | Packaging Machine 1 | ALM-304 | process | critical | 2026-06-01 08:30:00+00:00 | 2026-06-01 08:42:00+00:00 | 12.0 | 1 | 0.17 | 2.0 |
+| M002 | Assembly Station 1 | ALM-010 | safety | warning | 2026-06-01 13:45:00+00:00 | 2026-06-01 13:48:00+00:00 | 3.0 | 1 | 0.29 | 1.75 |
+
+Three alarms are returned. `ALM-120` has no energy reading whose measurement interval overlaps its three-minute window, so the aggregate columns are `NULL` rather than `0`. In the sample data there is simply no measurement covering that period, which is not the same as a measured value of zero. `ALM-304`, the critical packaging-line fault, lasted twelve minutes and overlaps one energy reading.
 
 The energy value is the energy recorded in the same time window as the alarm. It is a temporal correlation, not proof that the alarm caused the change.
 
@@ -216,7 +227,7 @@ Then run all cells. The notebook performs the following workflow:
 9. Builds a machine-level operational summary.
 10. Builds a production-order-level summary.
 11. Validates exported output files.
-12. Creates basic visualizations.
+12. Creates basic in-notebook visualizations.
 13. Generates a final engineering interpretation.
 
 ---
@@ -234,7 +245,13 @@ outputs/tables/
 └── visualization_export_summary.csv
 ```
 
-It also exports visualization files:
+The four report figures are generated separately by `scripts/make_figures.py`, which reads the database directly:
+
+```bash
+python scripts/make_figures.py
+```
+
+It writes:
 
 ```text
 outputs/figures/
